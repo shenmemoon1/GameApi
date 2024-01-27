@@ -30,11 +30,16 @@ List<Game> games = new(){
 };
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
+//使用mapgroup 更好的管理routes
+var gamegroup = app.MapGroup("games");
 
 //?get method
-app.MapGet("/", () => "Hello World!");
-app.MapGet("/games", () => games);
-app.MapGet("/games/{id}", (int id) =>
+// app.MapGet("/games", () => games);
+
+//?get 使用group的方式
+gamegroup.MapGet("/", () => games);
+
+gamegroup.MapGet("/{id}", (int id) =>
 {
   Game? game = games.Find(game => game.Id == id);
   if (game is null)
@@ -49,7 +54,7 @@ app.MapGet("/games/{id}", (int id) =>
 //在ASP.NET Core中，WithName 的主要作用是为一个特定的路由端点（endpoint）指定一个易记的名字。
 //这个名字可以看作是给这个端点起的一个别名。
 //? Post
-app.MapPost("/games", (Game game) =>
+gamegroup.MapPost("/", (Game game) =>
 {
   game.Id = games.Max(game => game.Id) + 1;
   games.Add(game);
@@ -59,7 +64,7 @@ app.MapPost("/games", (Game game) =>
 });
 
 //? Update put
-app.MapPut("/games/{id}", (int id, Game updateGame) =>
+gamegroup.MapPut("/{id}", (int id, Game updateGame) =>
 {
   Game? existingGame = games.Find(game => game.Id == id);
   if (existingGame is null)
@@ -76,7 +81,7 @@ app.MapPut("/games/{id}", (int id, Game updateGame) =>
 });
 
 //? delte endpoint
-app.MapDelete("/games/{id}", (int id) =>
+gamegroup.MapDelete("/{id}", (int id) =>
 {
   Game? existingGame = games.Find(game => game.Id == id);
   if (existingGame is not null)
